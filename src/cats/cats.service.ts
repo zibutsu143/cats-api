@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
 
@@ -13,19 +13,34 @@ export class CatsService {
     return this.prisma.cats.create({ data });
   }
 
-  findAll() {
-    return `This action returns all cats`;
+  // TODO: Pagination
+  async findAll(): Promise<Cats[]> {
+    return this.prisma.cats.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cat`;
+  async findOne(id: number): Promise<Cats> {
+    const cat = await this.prisma.cats.findUnique({ where: { id } });
+    if (!cat) {
+      throw new NotFoundException('Cat not found');
+    }
+    return cat;
   }
 
-  update(id: number, updateCatDto: UpdateCatDto) {
-    return `This action updates a #${id} cat`;
+  async update(id: number, data: UpdateCatDto): Promise<Cats> {
+    try {
+      const cat = await this.prisma.cats.update({ where: { id }, data });
+      return cat;
+    } catch (err) {
+      throw new NotFoundException('Cat not found');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cat`;
+  async remove(id: number): Promise<Cats> {
+    try {
+      const cat = await this.prisma.cats.delete({ where: { id } });
+      return cat;
+    } catch (err) {
+      throw new NotFoundException('Cat not found');
+    }
   }
 }
