@@ -2,10 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
 
+import { PrismaService } from '../prisma/prisma.service';
+import { Prisma, Cats } from '@prisma/client';
+
 @Injectable()
 export class CatsService {
-  create(createCatDto: CreateCatDto) {
-    return 'This action adds a new cat';
+  constructor(private prisma: PrismaService) {}
+
+  async create(data: CreateCatDto): Promise<Cats> {
+    return this.prisma.cats.create({ data });
   }
 
   findAll() {
